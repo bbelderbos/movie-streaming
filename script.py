@@ -9,16 +9,19 @@ import requests_cache
 import typer
 
 OMDB_API_KEY = config("OMDB_API_KEY")
-OMDB_API_BASE_URL = f"http://omdbapi.com/?apikey={OMDB_API_KEY}"
 RAPID_API_KEY = config("RAPID_API_KEY")
+
+OMDB_API_BASE_URL = f"http://omdbapi.com/?apikey={OMDB_API_KEY}"
 RAPID_API_BASE_URL = "streaming-availability.p.rapidapi.com"
 RAPID_API_URL = f"https://{RAPID_API_BASE_URL}/get/basic"
+
 HEADERS = {
     "X-RapidAPI-Key": RAPID_API_KEY,
     "X-RapidAPI-Host": RAPID_API_BASE_URL,
 }
+
 DEFAULT_COUNTRY = "es"
-DEFAULT_LANGUAGE = "en"
+ENGLISH = "en"
 
 requests_cache.install_cache("cache.db", backend="sqlite", expire_after=10)
 
@@ -73,7 +76,9 @@ def get_movie_data(
     imdb_id: str = typer.Argument(..., help="The IMDB id of the movie"),
     country: str = typer.Option(DEFAULT_COUNTRY, help="The country you're in"),
 ):
-    params = {"imdb_id": imdb_id, "country": country, "output_language": DEFAULT_LANGUAGE}
+    params = {
+        "imdb_id": imdb_id, "country": country, "output_language": ENGLISH
+    }
     resp = requests.get(RAPID_API_URL, headers=HEADERS, params=params)
     title = resp.json()["title"]
     for key, value in resp.json()["streamingInfo"].items():
