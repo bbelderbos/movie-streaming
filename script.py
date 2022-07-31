@@ -1,3 +1,4 @@
+from datetime import datetime
 from operator import attrgetter
 from typing import NamedTuple
 
@@ -26,10 +27,20 @@ class Movie(NamedTuple):
     imdb_id: str
 
 
-def search_movie_by_title(title, year=None):
+class StreamingMovie(NamedTuple):
+    title: str
+    service: str
+    link: str
+    added: datetime
+    leaving: datetime
+
+
+def search_movie_by_title(title, year=None, type_=None):
     url = OMDB_API_BASE_URL + f"&s={title}"
     if year is not None:
         url += f"&y={year}"
+    if type_ is not None:
+        url += f"&type={type_}"
     resp = requests.get(url)
     error = resp.json().get("Error")
     if error is not None:
@@ -48,7 +59,17 @@ def get_movie_data(imdb_id, country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
         "output_language": language
     }
     resp = requests.get(RAPID_API_URL, headers=HEADERS, params=params)
-    return resp.json()["streamingInfo"].keys()
+    title = resp.json()["title"]
+    return [
+        StreamingMovie(
+            title=title,
+            service=key,
+            link=value[country]["link"],
+            added=datetime.fromtimestamp(value[country]["added"]) if value[country]["added"] > 0 else 0,
+            leaving=datetime.fromtimestamp(value[country]["leaving"]) if value[country]["leaving"] > 0 else 0,
+        )
+        for key, value in resp.json()["streamingInfo"].items()
+    ]
 
 
 if __name__ == "__main__":
@@ -58,8 +79,9 @@ if __name__ == "__main__":
     if title == "movie":
         imdb_id = sys.argv[2]
         ret = get_movie_data(imdb_id)
-        print(", ".join(ret))
+        pp(ret)
     else:
         year = sys.argv[2] if len(sys.argv) > 2 else None
-        ret = search_movie_by_title(title, year)
+        type_ = sys.argv[3] if len(sys.argv) > 3 else None
+        ret = search_movie_by_title(title, year, type_)
         pp(ret)
