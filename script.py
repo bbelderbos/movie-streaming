@@ -18,7 +18,7 @@ HEADERS = {
 DEFAULT_COUNTRY = "es"
 DEFAULT_LANGUAGE = "en"
 
-requests_cache.install_cache('cache.db', backend='sqlite', expire_after=10)
+requests_cache.install_cache("cache.db", backend="sqlite", expire_after=10)
 
 
 class Movie(NamedTuple):
@@ -53,11 +53,7 @@ def search_movie_by_title(title, year=None, type_=None):
 
 
 def get_movie_data(imdb_id, country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
-    params = {
-        "imdb_id": imdb_id,
-        "country": country,
-        "output_language": language
-    }
+    params = {"imdb_id": imdb_id, "country": country, "output_language": language}
     resp = requests.get(RAPID_API_URL, headers=HEADERS, params=params)
     title = resp.json()["title"]
     return [
@@ -65,8 +61,12 @@ def get_movie_data(imdb_id, country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
             title=title,
             service=key,
             link=value[country]["link"],
-            added=datetime.fromtimestamp(value[country]["added"]) if value[country]["added"] > 0 else 0,
-            leaving=datetime.fromtimestamp(value[country]["leaving"]) if value[country]["leaving"] > 0 else 0,
+            added=datetime.fromtimestamp(value[country]["added"])
+            if value[country]["added"] > 0
+            else 0,
+            leaving=datetime.fromtimestamp(value[country]["leaving"])
+            if value[country]["leaving"] > 0
+            else 0,
         )
         for key, value in resp.json()["streamingInfo"].items()
     ]
@@ -75,6 +75,7 @@ def get_movie_data(imdb_id, country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
 if __name__ == "__main__":
     from pprint import pprint as pp
     import sys
+
     title = sys.argv[1]
     if title == "movie":
         imdb_id = sys.argv[2]
