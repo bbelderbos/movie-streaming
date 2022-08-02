@@ -72,7 +72,7 @@ def search_movie_by_title(
         print(movie)
 
 
-@app.command("where")
+@app.command("platform")
 def get_movie_data(
     imdb_id: str = typer.Argument(..., help="The IMDB id of the movie"),
     country: str = typer.Option(DEFAULT_COUNTRY, help="The country you're in"),
