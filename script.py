@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from operator import attrgetter
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 from decouple import config
 import requests
@@ -46,7 +46,7 @@ class MovieType(str, Enum):
 @app.command("search")
 def search_movie_by_title(
     title: str = typer.Argument(..., help="The title of the movie"),
-    year: Optional[str] = typer.Option(None, help="The year of the movie"),
+    year: str = typer.Option(None, help="The year of the movie"),
     kind: MovieType = typer.Option(MovieType.movie, help="The type of movie"),
 ):
     url = OMDB_API_BASE_URL + f"&s={title}"
