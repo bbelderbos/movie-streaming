@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from operator import attrgetter
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 from decouple import config
 import requests
@@ -33,8 +33,8 @@ class StreamingMovie(NamedTuple):
     title: str
     service: str
     link: str
-    added: datetime
-    leaving: datetime
+    added: Union[datetime, None]
+    leaving: Union[datetime, None]
 
 
 class MovieType(str, Enum):
@@ -91,11 +91,11 @@ def get_movie_data(
     for key, value in resp.json()["streamingInfo"].items():
         added = datetime.fromtimestamp(
             value[country]["added"]
-        ) if value[country]["added"] > 0 else 0
+        ) if value[country]["added"] > 0 else None
 
         leaving = datetime.fromtimestamp(
             value[country]["leaving"]
-        ) if value[country]["leaving"] > 0 else 0
+        ) if value[country]["leaving"] > 0 else None
 
         movie = StreamingMovie(
             title=title,
